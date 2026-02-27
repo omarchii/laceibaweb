@@ -192,7 +192,7 @@ export default function App() {
             ¡Disfruta de acceso preferencial y completamente gratis para pasar el día en <strong>Baaxal-Ha</strong>, un increíble parque acuático a solo unos minutos del hotel!
           </p>
 
-          {/* Imagenes /*/}
+          {/* Imagenes */}
           <div id="baaxal-ha" className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
             {/* Imagen 1 */}
             <div className="rounded-lg overflow-hidden shadow-sm border border-gray-200 aspect-square md:aspect-[4/3] bg-gray-200">
@@ -200,10 +200,6 @@ export default function App() {
                 src="/baaxal-ha-1.jpg"
                 alt="Parque Acuático Baaxal-Ha 1"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1572331165267-854da2f10ccc?q=80&w=800&auto=format&fit=crop";
-                }}
               />
             </div>
             {/* Imagen 2 */}
@@ -212,10 +208,6 @@ export default function App() {
                 src="/baaxal-ha-2.jpg"
                 alt="Atracciones Baaxal-Ha 2"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1582293041079-7814c2f12063?q=80&w=800&auto=format&fit=crop";
-                }}
               />
             </div>
             {/* Imagen 3 */}
@@ -224,36 +216,18 @@ export default function App() {
                 src="/baaxal-ha-3.jpg"
                 alt="Atracciones Baaxal-Ha 3"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1540544660406-6a69dacb2804?q=80&w=800&auto=format&fit=crop"; // Alberca soleada
-                }}
               />
             </div>
             {/* Imagen 4 */}
             <div className="rounded-lg overflow-hidden shadow-sm border border-gray-200 aspect-square md:aspect-[4/3] bg-gray-200">
               <img
-                src="/baaxal-ha-4.jpg"
+                src="/baaxal-ha-4.jpeg"
                 alt="Atracciones Baaxal-Ha 4"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=800&auto=format&fit=crop"; // Playa/Alberca relajación
-                }}
               />
             </div>
           </div>
         </div>
-      </section>
-
-      {/* CLOUDBEDS */}
-      <section className="max-w-6xl mx-auto px-4 py-16 text-center">
-        <h3 className="text-2xl font-semibold mb-4">Reserva directamente</h3>
-        <p className="text-gray-600 mb-6">
-          Revisa disponibilidad y tarifas inmediatamente.
-        </p>
-
-        <div id="cloudbeds-widget" />
       </section>
 
       {/* BOTÓN WHATSAPP */}

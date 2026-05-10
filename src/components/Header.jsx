@@ -16,11 +16,20 @@ export default function Header({ currentGuest, onNavigate, onLogout }) {
         </button>
 
         <ul className="hidden md:flex gap-8 text-gray-700">
-          <li><a href="#inicio" className="hover:text-black transition">Inicio</a></li>
+          <li>
+            <button type="button" onClick={() => onNavigate("inicio")} className="hover:text-black transition">
+              Inicio
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={() => onNavigate("about")} className="hover:text-black transition">
+              Quiénes somos
+            </button>
+          </li>
           <li><a href="#rooms" className="hover:text-black transition">Habitaciones</a></li>
-          <li><a href="#servicios" className="hover:text-black transition">Servicios</a></li>
-          <li><a href="#actividades" className="hover:text-black transition">¿Por qué elegirnos?</a></li>
-          <li><a href="#contact" className="hover:text-black transition">Contacto</a></li>
+          <li><a href="#promociones" className="hover:text-black transition">Promociones</a></li>
+          <li><a href="#resenas" className="hover:text-black transition">Reseñas</a></li>
+          <li><a href="#contacto" className="hover:text-black transition">Contacto</a></li>
         </ul>
 
         {currentGuest ? (

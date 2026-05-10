@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { ui } from "../styles/tokens";
 import TextField from "../components/TextField";
-import StatusMessage from "../components/StatusMessage";
 import SummaryRow from "../components/SummaryRow";
+import StatusBadge from "../components/StatusBadge";
+import ReviewForm from "../components/ReviewForm";
 import { requestJson } from "../services/api";
 import { formatDate, getNights } from "../utils/dates";
 
@@ -27,6 +29,23 @@ const DEFAULT_ROOMS = [
     isAvailable: true,
     imageUrl: "/room.jpg",
   },
+  {
+    name: "Suite La Ceiba",
+    type: "Suite",
+    pricePerNight: 999,
+    stock: 5,
+    capacity: 4,
+    amenities: [
+      "Aire acondicionado",
+      "Smart TV",
+      "Agua caliente",
+      "Internet de alta velocidad",
+      "Sala privada",
+      "Vista panorámica",
+    ],
+    isAvailable: true,
+    imageUrl: "/room.jpg",
+  },
 ];
 
 const emptyBookingForm = {
@@ -39,7 +58,6 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
   const [rooms, setRooms] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [bookingForm, setBookingForm] = useState(emptyBookingForm);
-  const [status, setStatus] = useState({ type: "", message: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -73,7 +91,7 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
         roomId: current.roomId || roomData[0]?._id || "",
       }));
     } catch (error) {
-      setStatus({ type: "error", message: error.message || "No se pudo cargar el portal." });
+      toast.error(error.message || "No se pudo cargar el portal.");
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +139,8 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     return guestId === guest?._id;
   });
 
+  const canReview = myReservations.length > 0;
+
   const handleBookingChange = (event) => {
     const { name, value } = event.target;
     setBookingForm((current) => ({ ...current, [name]: value }));
@@ -132,18 +152,17 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
 
   const handleCreateReservation = async (event) => {
     event.preventDefault();
-    setStatus({ type: "", message: "" });
 
     if (!selectedRoom) {
-      setStatus({ type: "error", message: "Selecciona una habitación disponible." });
+      toast.error("Selecciona una habitación disponible.");
       return;
     }
     if (nights <= 0) {
-      setStatus({ type: "error", message: "Selecciona fechas válidas para la reservación." });
+      toast.error("Selecciona fechas válidas para la reservación.");
       return;
     }
     if (selectedRoomRemaining <= 0) {
-      setStatus({ type: "error", message: "Esta habitación ya no tiene disponibilidad." });
+      toast.error("Esta habitación ya no tiene disponibilidad.");
       return;
     }
 
@@ -160,11 +179,11 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
           status: "Pendiente",
         }),
       });
-      setStatus({ type: "success", message: `Reservación registrada por $${totalPrice} MXN.` });
+      toast.success(`Reservación registrada por $${totalPrice} MXN.`);
       setBookingForm((current) => ({ ...emptyBookingForm, roomId: current.roomId }));
       await loadPortalData();
     } catch (error) {
-      setStatus({ type: "error", message: error.message || "No se pudo guardar la reservación." });
+      toast.error(error.message || "No se pudo guardar la reservación.");
     } finally {
       setIsSubmitting(false);
     }
@@ -172,16 +191,15 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
 
   const handleCancelReservation = async (reservationId) => {
     setIsSubmitting(true);
-    setStatus({ type: "", message: "" });
     try {
       await requestJson(`/api/reservations/${reservationId}`, {
         method: "PUT",
         body: JSON.stringify({ status: "Cancelada" }),
       });
-      setStatus({ type: "success", message: "Reservación cancelada." });
+      toast.success("Reservación cancelada.");
       await loadPortalData();
     } catch (error) {
-      setStatus({ type: "error", message: error.message || "No se pudo cancelar la reservación." });
+      toast.error(error.message || "No se pudo cancelar la reservación.");
     } finally {
       setIsSubmitting(false);
     }
@@ -214,13 +232,11 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
           <h1 className="text-4xl font-bold text-gray-900">Reserva tu habitación</h1>
         </div>
 
-        <StatusMessage status={status} />
-
         {isLoading ? (
           <div className={`${ui.card} p-8`}>Cargando habitaciones...</div>
         ) : (
           <>
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
               {rooms.map((room) => {
                 const availability = roomAvailability[room._id] || {
                   stock: room.stock ?? 20,
@@ -235,7 +251,14 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
                       selectedRoom?._id === room._id ? "border-green-700 ring-2 ring-green-700/10" : "border-gray-200"
                     }`}
                   >
-                    <img src={room.imageUrl || "/room.jpg"} alt={room.name} className="w-full h-48 object-cover" />
+                    <img
+                      src={room.imageUrl || "/room.jpg"}
+                      alt={room.name}
+                      className="w-full h-48 object-cover"
+                      onError={(event) => {
+                        event.currentTarget.src = "/room.jpg";
+                      }}
+                    />
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -321,9 +344,7 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
                             {formatDate(reservation.checkInDate)} - {formatDate(reservation.checkOutDate)}
                           </p>
                         </div>
-                        <span className="text-xs bg-green-50 text-green-800 px-2 py-1 rounded-full">
-                          {reservation.status}
-                        </span>
+                        <StatusBadge status={reservation.status} />
                       </div>
                       <p className="mt-4 font-bold">${reservation.totalPrice} MXN</p>
                       {reservation.status !== "Cancelada" && (
@@ -341,6 +362,8 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
                 </div>
               )}
             </section>
+
+            <ReviewForm canReview={canReview} />
           </>
         )}
       </div>

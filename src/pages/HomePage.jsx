@@ -4,8 +4,13 @@ import Footer from "../components/Footer";
 import WhatsAppButton from "../components/WhatsAppButton";
 import AmenitiesSection from "../components/AmenitiesSection";
 import WhyChooseUsSection from "../components/WhyChooseUsSection";
+import PromotionsGallery from "../components/PromotionsGallery";
+import ReviewsSection from "../components/ReviewsSection";
+import ContactForm from "../components/ContactForm";
 
 export default function HomePage({ currentGuest, onNavigate, onLogout }) {
+  const goReserve = () => onNavigate(currentGuest ? "portal" : "login");
+
   return (
     <main className="bg-white text-gray-800 font-sans">
       <Header currentGuest={currentGuest} onNavigate={onNavigate} onLogout={onLogout} />
@@ -24,11 +29,7 @@ export default function HomePage({ currentGuest, onNavigate, onLogout }) {
           <p className="text-white/90 text-lg md:text-xl mb-8 max-w-2xl">
             Hotel La Ceiba, ubicación ideal y el mejor precio.
           </p>
-          <button
-            type="button"
-            onClick={() => onNavigate(currentGuest ? "portal" : "login")}
-            className={`${ui.coralButton} px-8 py-4 text-lg font-semibold`}
-          >
+          <button type="button" onClick={goReserve} className={`${ui.coralButton} px-8 py-4 text-lg font-semibold`}>
             Reservar ahora
           </button>
         </div>
@@ -49,7 +50,7 @@ export default function HomePage({ currentGuest, onNavigate, onLogout }) {
             <p className="text-2xl font-bold mt-4">$599 MXN / noche</p>
             <button
               type="button"
-              onClick={() => onNavigate(currentGuest ? "portal" : "login")}
+              onClick={goReserve}
               className="mt-4 px-6 py-3 bg-green-700 text-white rounded-md text-center hover:bg-green-900 transition"
             >
               Reservar ahora
@@ -58,8 +59,11 @@ export default function HomePage({ currentGuest, onNavigate, onLogout }) {
         </div>
       </section>
 
+      <PromotionsGallery onReserve={goReserve} />
       <AmenitiesSection />
       <WhyChooseUsSection />
+      <ReviewsSection />
+      <ContactForm />
       <WhatsAppButton />
       <Footer />
     </main>

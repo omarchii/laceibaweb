@@ -1,7 +1,7 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { ui } from "../styles/tokens";
 import TextField from "../components/TextField";
-import StatusMessage from "../components/StatusMessage";
 
 const emptyForm = {
   firstName: "",
@@ -15,7 +15,6 @@ const emptyForm = {
 export default function AuthPage({ mode, auth, onNavigate }) {
   const isLogin = mode === "login";
   const [form, setForm] = useState(emptyForm);
-  const [status, setStatus] = useState({ type: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (event) => {
@@ -25,15 +24,14 @@ export default function AuthPage({ mode, auth, onNavigate }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setStatus({ type: "", message: "" });
 
     if (!isLogin) {
       if (form.password.length < 6) {
-        setStatus({ type: "error", message: "La contraseña debe tener al menos 6 caracteres." });
+        toast.error("La contraseña debe tener al menos 6 caracteres.");
         return;
       }
       if (form.password !== form.confirmPassword) {
-        setStatus({ type: "error", message: "Las contraseñas no coinciden." });
+        toast.error("Las contraseñas no coinciden.");
         return;
       }
     }
@@ -45,6 +43,7 @@ export default function AuthPage({ mode, auth, onNavigate }) {
           email: form.email.trim(),
           password: form.password,
         });
+        toast.success("¡Bienvenido de vuelta!");
       } else {
         await auth.register({
           firstName: form.firstName.trim(),
@@ -53,14 +52,12 @@ export default function AuthPage({ mode, auth, onNavigate }) {
           phone: form.phone.trim(),
           password: form.password,
         });
+        toast.success("Cuenta creada exitosamente.");
       }
       setForm(emptyForm);
       onNavigate("portal");
     } catch (error) {
-      setStatus({
-        type: "error",
-        message: error.message || (isLogin ? "No se pudo iniciar sesión." : "No se pudo crear la cuenta."),
-      });
+      toast.error(error.message || (isLogin ? "No se pudo iniciar sesión." : "No se pudo crear la cuenta."));
     } finally {
       setIsSubmitting(false);
     }
@@ -113,8 +110,6 @@ export default function AuthPage({ mode, auth, onNavigate }) {
                 <TextField label="Confirmar contraseña" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} required />
               )}
             </div>
-
-            <StatusMessage status={status} />
 
             <button type="submit" disabled={isSubmitting} className={`mt-6 w-full ${ui.primaryButton}`}>
               {isSubmitting ? "Procesando..." : isLogin ? "Entrar" : "Crear cuenta"}

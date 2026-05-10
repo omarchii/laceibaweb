@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
+import { Toaster } from "react-hot-toast";
 import "./App.css";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import PortalPage from "./pages/PortalPage";
+import AboutPage from "./pages/AboutPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { useAuth } from "./hooks/useAuth";
 
-const VIEWS = ["login", "registro", "portal"];
+const VIEWS = ["inicio", "about", "login", "registro", "portal"];
 
 const getInitialView = () => {
   const hash = window.location.hash.replace("#", "");
-  return VIEWS.includes(hash) ? hash : "inicio";
+  if (!hash) return "inicio";
+  if (VIEWS.includes(hash)) return hash;
+  return "404";
 };
 
 export default function App() {
@@ -38,19 +43,53 @@ export default function App() {
     return null;
   }
 
+  let page;
   if (view === "login" || view === "registro") {
-    return <AuthPage mode={view} auth={auth} onNavigate={navigate} />;
-  }
-
-  if (view === "portal" && auth.currentGuest) {
-    return (
+    page = <AuthPage mode={view} auth={auth} onNavigate={navigate} />;
+  } else if (view === "portal" && auth.currentGuest) {
+    page = (
       <PortalPage
         guest={auth.currentGuest}
         onNavigate={navigate}
         onLogout={handleLogout}
       />
     );
+  } else if (view === "about") {
+    page = (
+      <AboutPage
+        currentGuest={auth.currentGuest}
+        onNavigate={navigate}
+        onLogout={handleLogout}
+      />
+    );
+  } else if (view === "404") {
+    page = <NotFoundPage onNavigate={navigate} />;
+  } else {
+    page = <HomePage currentGuest={auth.currentGuest} onNavigate={navigate} onLogout={handleLogout} />;
   }
 
-  return <HomePage currentGuest={auth.currentGuest} onNavigate={navigate} onLogout={handleLogout} />;
+  return (
+    <>
+      {page}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            borderRadius: "8px",
+            background: "#fff",
+            color: "#171717",
+            border: "1px solid #e5e7eb",
+            fontSize: "0.95rem",
+          },
+          success: {
+            iconTheme: { primary: "#15803d", secondary: "#fff" },
+          },
+          error: {
+            iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+          },
+        }}
+      />
+    </>
+  );
 }

@@ -13,3 +13,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
 }
+
+.rdp-root {
+  --rdp-accent-color: #15803d;
+  --rdp-accent-background-color: #bbf7d0;
+  --rdp-range_middle-background-color: #bbf7d0;
+  --rdp-today-color: #15803d;
+}
+
+.rdp-day .rdp-occupied {
+  background-color: #fecaca;
+  color: #991b1b;
+  text-decoration: line-through;
+}
+
+.rdp-day.rdp-preview {
+  background-color: #dcfce7;
+}
+
+.rdp-day.rdp-preview .rdp-day_button {
+  color: #14532d;
+}
+
+.rdp-day_button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

@@ -6,6 +6,7 @@ import SummaryRow from "../components/SummaryRow";
 import StatusBadge from "../components/StatusBadge";
 import ReviewForm from "../components/ReviewForm";
 import PaymentModal from "../components/PaymentModal";
+import BookingCalendar from "../components/BookingCalendar";
 import { requestJson, uploadFile, API_URL } from "../services/api";
 import { formatDate, getNights } from "../utils/dates";
 import { generateReceipt } from "../utils/receipt";
@@ -75,6 +76,8 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
   const [isPaying, setIsPaying] = useState(false);
   const [currentGuest, setCurrentGuest] = useState(guest);
   const [isUploading, setIsUploading] = useState(false);
+  const [occupiedDates, setOccupiedDates] = useState([]);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
 
   const loadPortalData = async () => {
     setIsLoading(true);
@@ -116,6 +119,29 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     loadPortalData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const roomId = bookingForm.roomId;
+    if (!roomId) {
+      setOccupiedDates([]);
+      return;
+    }
+    let cancelled = false;
+    setIsLoadingAvailability(true);
+    requestJson(`/api/rooms/${roomId}/availability`)
+      .then((data) => {
+        if (!cancelled) setOccupiedDates(data.occupiedDates || []);
+      })
+      .catch(() => {
+        if (!cancelled) setOccupiedDates([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingAvailability(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [bookingForm.roomId, reservations]);
 
   const filteredRooms = useMemo(() => {
     const maxPrice = filters.maxPrice ? Number(filters.maxPrice) : null;
@@ -171,6 +197,26 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     setBookingForm((current) => ({ ...current, [name]: value }));
   };
 
+  const handleCalendarChange = ({ checkInDate, checkOutDate }) => {
+    setBookingForm((current) => ({
+      ...current,
+      checkInDate,
+      checkOutDate,
+    }));
+  };
+
+  const rangeHasOccupiedDate = useMemo(() => {
+    if (!bookingForm.checkInDate || !bookingForm.checkOutDate) return false;
+    const start = new Date(`${bookingForm.checkInDate}T00:00:00`);
+    const end = new Date(`${bookingForm.checkOutDate}T00:00:00`);
+    const occupied = new Set(occupiedDates);
+    for (let day = new Date(start); day < end; day.setDate(day.getDate() + 1)) {
+      const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+      if (occupied.has(key)) return true;
+    }
+    return false;
+  }, [bookingForm.checkInDate, bookingForm.checkOutDate, occupiedDates]);
+
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
     setFilters((current) => ({ ...current, [name]: value }));
@@ -210,6 +256,10 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     }
     if (selectedRoomRemaining <= 0) {
       toast.error("Esta habitación ya no tiene disponibilidad.");
+      return;
+    }
+    if (rangeHasOccupiedDate) {
+      toast.error("Las fechas elegidas incluyen días ocupados.");
       return;
     }
 
@@ -427,33 +477,49 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
             <section className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
               <form onSubmit={handleCreateReservation} className={`${ui.card} p-6 md:p-8`}>
                 <h2 className="text-2xl font-semibold mb-6">Datos de estancia</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <TextField
-                    label="Llegada"
-                    name="checkInDate"
-                    type="date"
-                    value={bookingForm.checkInDate}
-                    onChange={handleBookingChange}
-                    required
+                <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6 items-start">
+                  <BookingCalendar
+                    checkInDate={bookingForm.checkInDate}
+                    checkOutDate={bookingForm.checkOutDate}
+                    occupiedDates={occupiedDates}
+                    onRangeChange={handleCalendarChange}
+                    isLoading={isLoadingAvailability}
                   />
-                  <TextField
-                    label="Salida"
-                    name="checkOutDate"
-                    type="date"
-                    value={bookingForm.checkOutDate}
-                    onChange={handleBookingChange}
-                    required
-                  />
-                  <TextField
-                    label={`Número de huéspedes${selectedRoom ? ` (máx ${selectedRoom.capacity})` : ""}`}
-                    name="numberOfGuests"
-                    type="number"
-                    value={bookingForm.numberOfGuests}
-                    onChange={handleBookingChange}
-                    required
-                  />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-md border border-gray-200 p-3">
+                        <p className={ui.eyebrow}>Llegada</p>
+                        <p className="mt-1 font-semibold text-gray-900">
+                          {bookingForm.checkInDate ? formatDate(`${bookingForm.checkInDate}T00:00:00`) : "—"}
+                        </p>
+                      </div>
+                      <div className="rounded-md border border-gray-200 p-3">
+                        <p className={ui.eyebrow}>Salida</p>
+                        <p className="mt-1 font-semibold text-gray-900">
+                          {bookingForm.checkOutDate ? formatDate(`${bookingForm.checkOutDate}T00:00:00`) : "—"}
+                        </p>
+                      </div>
+                    </div>
+                    <TextField
+                      label={`Número de huéspedes${selectedRoom ? ` (máx ${selectedRoom.capacity})` : ""}`}
+                      name="numberOfGuests"
+                      type="number"
+                      value={bookingForm.numberOfGuests}
+                      onChange={handleBookingChange}
+                      required
+                    />
+                    {rangeHasOccupiedDate && (
+                      <p className="text-sm text-red-700">
+                        El rango incluye fechas ocupadas. Elige otras fechas.
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <button type="submit" disabled={isSubmitting} className={`mt-6 w-full md:w-auto ${ui.primaryButton}`}>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || rangeHasOccupiedDate}
+                  className={`mt-6 w-full md:w-auto ${ui.primaryButton}`}
+                >
                   {isSubmitting ? "Guardando..." : "Reservar habitación"}
                 </button>
               </form>

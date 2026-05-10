@@ -20,7 +20,7 @@ const DEFAULT_ROOMS = [
     capacity: 2,
     amenities: ["Aire acondicionado", "Internet", "TV"],
     isAvailable: true,
-    imageUrl: "/room2",
+    imageUrl: "/room2.jpg",
   },
   {
     name: "Habitación Doble",
@@ -60,16 +60,10 @@ const emptyBookingForm = {
   numberOfGuests: 1,
 };
 
-const emptyFilters = {
-  maxPrice: "",
-  minCapacity: "",
-};
-
 export default function PortalPage({ guest, onNavigate, onLogout }) {
   const [rooms, setRooms] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [bookingForm, setBookingForm] = useState(emptyBookingForm);
-  const [filters, setFilters] = useState(emptyFilters);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [payingReservation, setPayingReservation] = useState(null);
@@ -143,16 +137,6 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     };
   }, [bookingForm.roomId, reservations]);
 
-  const filteredRooms = useMemo(() => {
-    const maxPrice = filters.maxPrice ? Number(filters.maxPrice) : null;
-    const minCapacity = filters.minCapacity ? Number(filters.minCapacity) : null;
-    return rooms.filter((room) => {
-      if (maxPrice !== null && room.pricePerNight > maxPrice) return false;
-      if (minCapacity !== null && room.capacity < minCapacity) return false;
-      return true;
-    });
-  }, [rooms, filters]);
-
   const selectedRoom = useMemo(() => {
     return rooms.find((room) => room._id === bookingForm.roomId) || rooms[0];
   }, [rooms, bookingForm.roomId]);
@@ -216,11 +200,6 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
     }
     return false;
   }, [bookingForm.checkInDate, bookingForm.checkOutDate, occupiedDates]);
-
-  const handleFilterChange = (event) => {
-    const { name, value } = event.target;
-    setFilters((current) => ({ ...current, [name]: value }));
-  };
 
   const handleSelectRoom = (roomId) => {
     setBookingForm((current) => ({ ...current, roomId }));
@@ -356,7 +335,7 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
             <span className="text-xl font-bold">Hotel La Ceiba</span>
           </button>
           <div className="flex items-center gap-4">
-            <span className="hidden md:block text-sm text-gray-600">
+            <span className="hidden md:block text-lg font-semibold text-gray-900">
               {currentGuest.firstName} {currentGuest.lastName}
             </span>
             <button type="button" onClick={onLogout} className="text-sm font-semibold text-green-700 hover:text-green-900">
@@ -376,40 +355,8 @@ export default function PortalPage({ guest, onNavigate, onLogout }) {
           <div className={`${ui.card} p-8`}>Cargando habitaciones...</div>
         ) : (
           <>
-            <section className={`${ui.card} p-5 mb-6`}>
-              <p className={`${ui.eyebrow} mb-3`}>Filtrar habitaciones</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <TextField
-                  label="Precio máximo por noche (MXN)"
-                  name="maxPrice"
-                  type="number"
-                  value={filters.maxPrice}
-                  onChange={handleFilterChange}
-                />
-                <TextField
-                  label="Capacidad mínima"
-                  name="minCapacity"
-                  type="number"
-                  value={filters.minCapacity}
-                  onChange={handleFilterChange}
-                />
-                <button
-                  type="button"
-                  onClick={() => setFilters(emptyFilters)}
-                  className="text-sm font-semibold text-green-700 hover:text-green-900 self-center md:justify-self-start"
-                >
-                  Limpiar filtros
-                </button>
-              </div>
-              {filteredRooms.length === 0 && (
-                <p className="mt-3 text-sm text-gray-600">
-                  Ninguna habitación coincide con los filtros aplicados.
-                </p>
-              )}
-            </section>
-
             <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-              {filteredRooms.map((room) => {
+              {rooms.map((room) => {
                 const availability = roomAvailability[room._id] || {
                   stock: room.stock ?? 20,
                   reserved: 0,

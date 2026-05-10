@@ -11,29 +11,45 @@ import { useAuth } from "./hooks/useAuth";
 import { useAdminAuth } from "./hooks/useAdminAuth";
 
 const VIEWS = ["inicio", "about", "login", "registro", "portal", "admin"];
+const SECTION_ANCHORS = ["rooms", "promociones", "resenas", "contacto", "baaxal-ha"];
 
-const getInitialView = () => {
-  const hash = window.location.hash.replace("#", "");
+const readHash = () => window.location.hash.replace("#", "");
+
+const hashToView = (hash) => {
   if (!hash) return "inicio";
   if (VIEWS.includes(hash)) return hash;
+  if (SECTION_ANCHORS.includes(hash)) return "inicio";
   return "404";
 };
 
 export default function App() {
-  const [view, setView] = useState(getInitialView);
+  const [hash, setHash] = useState(readHash);
+  const view = hashToView(hash);
   const auth = useAuth();
   const adminAuth = useAdminAuth();
 
   useEffect(() => {
-    const syncView = () => setView(getInitialView());
-    window.addEventListener("hashchange", syncView);
-    return () => window.removeEventListener("hashchange", syncView);
+    const sync = () => setHash(readHash());
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
   }, []);
 
+  useEffect(() => {
+    if (view === "inicio" && SECTION_ANCHORS.includes(hash)) {
+      const id = window.requestAnimationFrame(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+      });
+      return () => window.cancelAnimationFrame(id);
+    }
+    window.scrollTo({ top: 0 });
+  }, [hash, view]);
+
   const navigate = (nextView) => {
+    if (readHash() === nextView) {
+      window.scrollTo({ top: 0 });
+      return;
+    }
     window.location.hash = nextView;
-    setView(nextView);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleLogout = () => {

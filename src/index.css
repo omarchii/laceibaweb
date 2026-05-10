@@ -7,6 +7,10 @@
   --foreground: #171717;
 }
 
+html {
+  scroll-padding-top: 5rem;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -14,10 +18,12 @@ body {
   margin: 0;
 }
 
-.rdp-root {
+.rdp-root.rdp-root {
   --rdp-accent-color: #15803d;
   --rdp-accent-background-color: #bbf7d0;
   --rdp-range_middle-background-color: #bbf7d0;
+  --rdp-range_start-date-background-color: #15803d;
+  --rdp-range_end-date-background-color: #15803d;
   --rdp-today-color: #15803d;
 }
 

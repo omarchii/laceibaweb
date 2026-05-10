@@ -29,7 +29,11 @@ export default function Footer() {
           <h3 className="text-xl font-semibold text-white mb-3">Enlaces</h3>
           <ul className="space-y-2 text-gray-400">
             <li><a href="#inicio" className="hover:text-white transition">Inicio</a></li>
+            <li><a href="#about" className="hover:text-white transition">Quiénes somos</a></li>
             <li><a href="#rooms" className="hover:text-white transition">Habitaciones</a></li>
+            <li><a href="#promociones" className="hover:text-white transition">Promociones</a></li>
+            <li><a href="#resenas" className="hover:text-white transition">Reseñas</a></li>
+            <li><a href="#contacto" className="hover:text-white transition">Contacto</a></li>
             <li><a href="#baaxal-ha" className="hover:text-white transition">Baaxal-Ha</a></li>
           </ul>
         </div>

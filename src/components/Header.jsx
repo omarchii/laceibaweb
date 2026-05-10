@@ -5,13 +5,9 @@ export default function Header({ currentGuest, onNavigate, onLogout }) {
     <nav className="fixed top-0 left-0 w-full bg-white/80 backdrop-blur-md z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <button type="button" onClick={() => onNavigate("inicio")} className="flex items-center gap-3">
-          <img
-            src="/logo.svg"
-            alt="Hotel La Ceiba"
-            width="120"
-            height="120"
-            className="-ml-4 -my-8 z-10"
-          />
+          <span className="w-12 h-12 rounded-full bg-green-700 flex items-center justify-center">
+            <img src="/logo.svg" alt="Hotel La Ceiba" className="w-10 h-10" />
+          </span>
           <span className="text-xl font-bold">Hotel La Ceiba</span>
         </button>
 

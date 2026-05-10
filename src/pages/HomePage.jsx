@@ -5,6 +5,7 @@ import WhatsAppButton from "../components/WhatsAppButton";
 import AmenitiesSection from "../components/AmenitiesSection";
 import WhyChooseUsSection from "../components/WhyChooseUsSection";
 import PromotionsGallery from "../components/PromotionsGallery";
+import RoomsGallery from "../components/RoomsGallery";
 import ReviewsSection from "../components/ReviewsSection";
 import ContactForm from "../components/ContactForm";
 
@@ -35,33 +36,11 @@ export default function HomePage({ currentGuest, onNavigate, onLogout }) {
         </div>
       </section>
 
-      <section id="rooms" className="max-w-6xl mx-auto px-4 py-16">
-        <h3 className="text-3xl font-semibold mb-6 text-center">Habitación Doble</h3>
-        <div className="flex flex-col md:flex-row gap-6 justify-center">
-          <img
-            src="/room.jpg"
-            alt="Habitación doble Hotel La Ceiba"
-            className="rounded-lg object-cover w-full md:w-[600px] h-auto"
-          />
-          <div className="flex flex-col justify-between">
-            <p className="text-gray-700">
-              Habitación cómoda con aire acondicionado, agua caliente, smart TV e internet.
-            </p>
-            <p className="text-2xl font-bold mt-4">$599 MXN / noche</p>
-            <button
-              type="button"
-              onClick={goReserve}
-              className="mt-4 px-6 py-3 bg-green-700 text-white rounded-md text-center hover:bg-green-900 transition"
-            >
-              Reservar ahora
-            </button>
-          </div>
-        </div>
-      </section>
+      <RoomsGallery onReserve={goReserve} />
 
-      <PromotionsGallery onReserve={goReserve} />
       <AmenitiesSection />
       <WhyChooseUsSection />
+      <PromotionsGallery onReserve={goReserve} />
       <ReviewsSection />
       <ContactForm />
       <WhatsAppButton />

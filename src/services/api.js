@@ -29,4 +29,30 @@ export const requestJson = async (path, options = {}) => {
   return data;
 };
 
+export const uploadFile = async (path, file, fieldName = "document") => {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append(fieldName, file);
+
+  const headers = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el backend. Verifica que esté corriendo en http://localhost:5001."
+    );
+  }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "No se pudo subir el archivo");
+  return data;
+};
+
 export { API_URL };

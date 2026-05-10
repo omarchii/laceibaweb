@@ -1,13 +1,17 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 const TOKEN_KEY = "laceibaToken";
+const ADMIN_TOKEN_KEY = "laceibaAdminToken";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 
-export const requestJson = async (path, options = {}) => {
-  const token = getToken();
+export const getAdminToken = () => localStorage.getItem(ADMIN_TOKEN_KEY);
+export const setAdminToken = (token) => localStorage.setItem(ADMIN_TOKEN_KEY, token);
+export const clearAdminToken = () => localStorage.removeItem(ADMIN_TOKEN_KEY);
+
+const fetchJson = async (path, options, token) => {
   const headers = {
     "Content-Type": "application/json",
     ...(options.headers || {}),
@@ -25,9 +29,14 @@ export const requestJson = async (path, options = {}) => {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || "Ocurrió un error");
-
   return data;
 };
+
+export const requestJson = (path, options = {}) =>
+  fetchJson(path, options, getToken());
+
+export const requestAdminJson = (path, options = {}) =>
+  fetchJson(path, options, getAdminToken());
 
 export const uploadFile = async (path, file, fieldName = "document") => {
   const token = getToken();

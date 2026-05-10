@@ -5,10 +5,12 @@ import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import PortalPage from "./pages/PortalPage";
 import AboutPage from "./pages/AboutPage";
+import AdminPage from "./pages/AdminPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { useAuth } from "./hooks/useAuth";
+import { useAdminAuth } from "./hooks/useAdminAuth";
 
-const VIEWS = ["inicio", "about", "login", "registro", "portal"];
+const VIEWS = ["inicio", "about", "login", "registro", "portal", "admin"];
 
 const getInitialView = () => {
   const hash = window.location.hash.replace("#", "");
@@ -20,6 +22,7 @@ const getInitialView = () => {
 export default function App() {
   const [view, setView] = useState(getInitialView);
   const auth = useAuth();
+  const adminAuth = useAdminAuth();
 
   useEffect(() => {
     const syncView = () => setView(getInitialView());
@@ -35,6 +38,11 @@ export default function App() {
 
   const handleLogout = () => {
     auth.logout();
+    navigate("inicio");
+  };
+
+  const handleAdminLogout = () => {
+    adminAuth.logout();
     navigate("inicio");
   };
 
@@ -60,6 +68,15 @@ export default function App() {
         currentGuest={auth.currentGuest}
         onNavigate={navigate}
         onLogout={handleLogout}
+      />
+    );
+  } else if (view === "admin") {
+    page = (
+      <AdminPage
+        admin={adminAuth.currentAdmin}
+        onLogin={adminAuth.login}
+        onLogout={handleAdminLogout}
+        onNavigate={navigate}
       />
     );
   } else if (view === "404") {

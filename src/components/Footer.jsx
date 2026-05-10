@@ -47,7 +47,10 @@ export default function Footer() {
         </div>
       </div>
       <div className="text-center text-gray-500 text-sm mt-10">
-        © {new Date().getFullYear()} Hotel La Ceiba — Calkiní, Campeche.
+        © {new Date().getFullYear()} Hotel La Ceiba — Calkiní, Campeche. · {" "}
+        <a href="#admin" className="text-gray-500 hover:text-white transition">
+          Acceso administradores
+        </a>
       </div>
     </footer>
   );

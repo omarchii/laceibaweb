@@ -47,7 +47,7 @@ const DEFAULT_ROOMS = [
       "Vista panorámica",
     ],
     isAvailable: true,
-    imageUrl: "/room.jpg",
+    imageUrl: "/suite.jpg",
   },
 ];
 

@@ -12,7 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Materiales locales del examen (no versionar)
 proyecto/
 
 # Editor directories and files
